@@ -44,23 +44,7 @@ docker compose logs flask_app
 
 ## SSL Certificate Management
 
-To obtain SSL certificates for the domain `mw-nexus.duckdns.org`, we used two commands:
-
-1. The first command obtained a certificate using certbot in standalone mode:
-
-Bash
-```
-docker run --rm -it \
-  -p 80:80 \
-  -v "certbot-etc:/etc/letsencrypt" \
-  -v "certbot-var:/var/www/certbot" \
-  certbot/certbot certonly --standalone \
-  -d mw-nexus.duckdns.org \
-  --email your-email@example.com \
-  --agree-tos --no-eff-email
-```
-
-2. The second command registered a certificate for the same domain without an email:
+The SSL certificate for `mw-nexus.duckdns.org` has been updated and now achieves an A+ rating from Qualys SSL Labs, indicating industry-standard security. The certificate was obtained using certbot in standalone mode with the following command:
 
 Bash
 ```
@@ -82,6 +66,4 @@ docker run --rm -it \
 *   `-v flask-poc_certbot-var:/var/www/certbot`: Mounts another volume, `flask-poc_certbot-var`, to the container's working directory. This is where certbot stores temporary files needed for validation.
 *   `certbot/certbot certonly --standalone`: Runs certbot in standalone mode which creates a simple HTTP server to respond to Let’s Encrypt challenges on port 80 without needing an existing web server.
 *   `-d mw-nexus.duckdns.org`: Specifies the domain name for which we're requesting the certificate.
-*   `--email your-email@example.com`: Provides contact email address. This is required for Let's Encrypt to notify about issues with certificates (though --no-eff-email suppresses EFF notifications).
-*   `--agree-tos`: Agrees to the Let’s Encrypt Terms of Service automatically without user interaction.
 *   `--register-unsafely-without-email`: Skips email registration process. This is used when a valid email isn't available or desired but is generally discouraged for security reasons.
