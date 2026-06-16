@@ -10,7 +10,7 @@ This project serves as a production-ready, highly secure template for hosting Py
 * **Linux Environment:** WSL 2 (Fedora Distribution)
 * **Container Engine:** Docker Desktop for Windows (WSL 2 Backend integration enabled)
 * **Storage Configuration:** 
-    * Project Source Files: Stored locally within the high-performance native WSL filesystem (`/home/mattwakeling/...`).
+    * Project Source Files: Stored locally within the high-performance native WSL filesystem (`/home/<username>/...`).
     * Docker Image/Container Data: Relocated to the external secondary drive (`E:\DockerStorage`) via Docker Desktop settings to protect the `C:\` drive system storage.
 
 ### Service Stack
