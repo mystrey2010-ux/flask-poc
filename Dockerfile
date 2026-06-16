@@ -18,4 +18,4 @@ EXPOSE 8000
 
 # Step 7: Run Gunicorn in production mode
 # Original : CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--forwarded-allow-ips", "*", "app:app"]

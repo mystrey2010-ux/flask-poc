@@ -1,0 +1,35 @@
+# 1. Main Context
+worker_processes auto;
+
+# 2. Events Context (THIS IS WHAT WAS MISSING)
+events {
+    worker_connections 1024;
+}
+
+# 3. HTTP Context
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # HTTP Redirect Block
+    server {
+        listen 80;
+        server_name mw-nexus.duckdns.org;
+        return 301 https://$host$request_uri;
+    }
+
+    # HTTPS Server Block
+    server {
+        listen 443 ssl;
+        server_name mw-nexus.duckdns.org;
+
+        ssl_certificate /etc/letsencrypt/live/mw-nexus.duckdns.org/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/mw-nexus.duckdns.org/privkey.pem;
+
+        location / {
+            proxy_pass http://flask_backend:8000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}

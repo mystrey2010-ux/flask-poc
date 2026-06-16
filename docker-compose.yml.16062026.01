@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # Service 1: Our Flask Application
+  flask_app:
+    build: .
+    container_name: flask_backend
+    restart: always
+    # We do not expose ports to Windows here anymore. 
+    # Flask stays completely hidden from the outside world.
+
+  # Service 2: Our Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80" # Maps port 80 (HTTP) from Windows straight to Nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - flask_app
