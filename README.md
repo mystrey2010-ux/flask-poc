@@ -9,7 +9,8 @@ This project serves as a production-ready, highly secure template for hosting Py
 * **Host OS:** Windows 11 Home/Pro (Primary Machine)
 * **Linux Environment:** WSL 2 (Fedora Distribution)
 * **Container Engine:** Docker Desktop for Windows (WSL 2 Backend integration enabled)
-* **Storage Configuration:** * Project Source Files: Stored locally within the high-performance native WSL filesystem (`/home/mattwakeling/...`).
+* **Storage Configuration:** 
+    * Project Source Files: Stored locally within the high-performance native WSL filesystem (`/home/mattwakeling/...`).
     * Docker Image/Container Data: Relocated to the external secondary drive (`E:\DockerStorage`) via Docker Desktop settings to protect the `C:\` drive system storage.
 
 ### Service Stack
@@ -54,7 +55,8 @@ docker run --rm -it \
   -v flask-poc_certbot-var:/var/www/certbot \
   certbot/certbot certonly --standalone \
   -d mw-nexus.duckdns.org \
-  --register-unsafely-without-email --agree-tos
+  --email your-email@example.com \
+  --agree-tos --no-eff-email
 ```
 
 ### Explanation of Commands:
@@ -66,4 +68,21 @@ docker run --rm -it \
 *   `-v flask-poc_certbot-var:/var/www/certbot`: Mounts another volume, `flask-poc_certbot-var`, to the container's working directory. This is where certbot stores temporary files needed for validation.
 *   `certbot/certbot certonly --standalone`: Runs certbot in standalone mode which creates a simple HTTP server to respond to Let’s Encrypt challenges on port 80 without needing an existing web server.
 *   `-d mw-nexus.duckdns.org`: Specifies the domain name for which we're requesting the certificate.
-*   `--register-unsafely-without-email`: Skips email registration process. This is used when a valid email isn't available or desired but is generally discouraged for security reasons.
+*   `--email your-email@example.com`: Provides contact email address. This is required for Let's Encrypt to notify about issues with certificates (though --no-eff-email suppresses EFF notifications).
+*   `--agree-tos`: Agrees to the Let's Encrypt Terms of Service automatically without user interaction.
+*   `--no-eff-email`: Suppresses EFF notifications.
+
+## Security Features Implemented
+
+1. **IP Address Logging:** Nginx uses a custom log format that captures real IP addresses from the X-Forwarded-For header, which is processed by Flask's ProxyFix middleware.
+2. **SSL/TLS Configuration:** Strong SSL protocols (TLSv1.2, TLSv1.3) and cipher suites are configured for secure communication with proper certificate validation.
+3. **Security Headers:** Implements HTTP security headers like HSTS, XSS protection, frame options, and content type options to enhance application security.
+
+## Application Structure
+
+*   `app.py`: Main Flask application with ProxyFix configuration for handling reverse proxy headers.
+*   `docker-compose.yml`: Docker Compose file defining services for Flask app, Nginx proxy, and Certbot.
+*   `nginx/nginx.conf`: Nginx configuration with SSL setup and reverse proxy rules.
+*   `templates/index.html`: Basic HTML template for the root page.
+*   `static/style.css`: Basic CSS styling for the page.
+
