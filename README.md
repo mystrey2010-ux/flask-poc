@@ -18,19 +18,70 @@ This project serves as a production-ready, highly secure template for hosting Py
 
 ---
 
-## Directory Structure
+## Secure Ecosystem Management
 
-Ensure your project environment is organized exactly as follows within the WSL directory:
+Start the Secure Ecosystem
+Bash
+```
+docker compose up -d
+```
+Stop the Entire Stack Cleanly
+Bash
+```
+docker compose down
+```
+Stream Live Combined Production Logs
+Bash
+```
+docker compose logs -f
+```
+Inspect Single Component Logs
+Bash
+```
+docker compose logs nginx
+docker compose logs flask_app 
+```
 
-```text
-/home/mattwakeling/data/Programming/Python-Linux/projects/flask-poc/
-│   app.py
-│   Dockerfile
-│   requirements.txt
-│   docker-compose.yml
-├───nginx/
-│       nginx.conf
-├───static/
-│       style.css
-└───templates/
-        index.html
+## SSL Certificate Management
+
+To obtain SSL certificates for the domain `mw-nexus.duckdns.org`, we used two commands:
+
+1. The first command obtained a certificate using certbot in standalone mode:
+
+Bash
+```
+docker run --rm -it \
+  -p 80:80 \
+  -v "certbot-etc:/etc/letsencrypt" \
+  -v "certbot-var:/var/www/certbot" \
+  certbot/certbot certonly --standalone \
+  -d mw-nexus.duckdns.org \
+  --email your-email@example.com \
+  --agree-tos --no-eff-email
+```
+
+2. The second command registered a certificate for the same domain without an email:
+
+Bash
+```
+docker run --rm -it \
+  -p 80:80 \
+  -v flask-poc_certbot-etc:/etc/letsencrypt \
+  -v flask-poc_certbot-var:/var/www/certbot \
+  certbot/certbot certonly --standalone \
+  -d mw-nexus.duckdns.org \
+  --register-unsafely-without-email --agree-tos
+```
+
+### Explanation of Commands:
+
+*   `--rm`: Removes the container automatically after execution. This ensures that we don't leave behind any temporary containers from certbot.
+*   `-it`: Starts an interactive TTY session for better debugging and monitoring during certificate acquisition.
+*   `-p 80:80`: Maps port 80 of your host to port 80 in the container. This is necessary for HTTP-01 challenge validation by Let's Encrypt.
+*   `-v flask-poc_certbot-etc:/etc/letsencrypt`: Mounts a volume named `flask-poc_certbot-etc` (which should be created earlier) at `/etc/letsencrypt`. This directory contains configuration files and certificates issued by Let's Encrypt.
+*   `-v flask-poc_certbot-var:/var/www/certbot`: Mounts another volume, `flask-poc_certbot-var`, to the container's working directory. This is where certbot stores temporary files needed for validation.
+*   `certbot/certbot certonly --standalone`: Runs certbot in standalone mode which creates a simple HTTP server to respond to Let’s Encrypt challenges on port 80 without needing an existing web server.
+*   `-d mw-nexus.duckdns.org`: Specifies the domain name for which we're requesting the certificate.
+*   `--email your-email@example.com`: Provides contact email address. This is required for Let's Encrypt to notify about issues with certificates (though --no-eff-email suppresses EFF notifications).
+*   `--agree-tos`: Agrees to the Let’s Encrypt Terms of Service automatically without user interaction.
+*   `--register-unsafely-without-email`: Skips email registration process. This is used when a valid email isn't available or desired but is generally discouraged for security reasons.
