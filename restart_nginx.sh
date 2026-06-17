@@ -1,9 +1,17 @@
 #!/bin/bash
 
-echo "Stopping nginx proxy container..."
-docker stop nginx_proxy
+# Check if docker compose is available
+if ! command -v docker &> /dev/null; then
+    echo "Error: Docker is not installed or not in PATH"
+    exit 1
+fi
 
-echo "Starting nginx proxy container..."
-docker start nginx_proxy
+echo "Restarting nginx proxy container..."
+docker compose restart nginx_proxy
 
-echo "Nginx proxy container restarted successfully!"
+if [ $? -eq 0 ]; then
+    echo "Nginx proxy container restarted successfully!"
+else
+    echo "Error: Failed to restart nginx proxy container"
+    exit 1
+fi

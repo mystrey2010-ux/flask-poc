@@ -12,6 +12,15 @@ This project serves as a production-ready, highly secure template for hosting Py
 * **Storage Configuration:** 
     * Project Source Files: Stored locally within the high-performance native WSL filesystem (`/home/<username>/...`).
     * Docker Image/Container Data: Relocated to the external secondary drive (`E:\DockerStorage`) via Docker Desktop settings to protect the `C:\` drive system storage.
+* **Networking Configuration:** WSL 2 networking set to `mirrored` mode in `.wslconfig` to properly display real IP addresses in Nginx logs:
+
+```
+C:\Users\<Username>\.wslconfig
+[wsl2]
+networkingMode=mirrored
+```
+
+Restart WSL after making changes to `.wslconfig` for networking changes to take effect.
 
 ### Service Stack
 1.  **Nginx (Reverse Proxy):** Acts as the public-facing edge shield container. Listens on port 80, safely handles client handshakes, drops invalid requests, and forwards valid web traffic internally.
@@ -101,17 +110,16 @@ This script will:
 - Extract IP addresses from Nginx proxy logs
 - Count and rank IP addresses by frequency
 - Display the top IP addresses that may be scanning your system
+- Show country of origin for each IP
 - Save detailed analysis to `/tmp/ip_analysis.txt`
 
 IPs with high request counts (especially requesting sensitive paths like `/.env`, `/config`, etc.) should be monitored and potentially blocked. The rate limiting configuration will automatically slow down excessive requests from these IPs.
 
-### Currently Blocked IPs
+## Production Hardening Checklist
 
-The following malicious IP addresses are currently blocked:
-- `45.148.10.200`
-- `172.174.109.243`
-- `47.251.13.59`
-- `52.200.76.145`
-
-To add additional IPs to the block list, edit `nginx/nginx.conf` and add `deny <IP_ADDRESS>;` inside both server blocks (HTTP and HTTPS). Restart Nginx with `docker compose restart nginx_proxy` for changes to take effect.
+* **Non-root Docker user:** Dockerfile includes user creation for security
+* **Optimized caching:** Docker cache optimization with requirements-first copy
+* **Gunicorn worker settings:** Configured with max-requests and timeout for stability
+* **CSS responsive design:** Enhanced for better user experience
+* **WSL mirrored networking:** Configured for accurate IP logging in WSL2 environment
 

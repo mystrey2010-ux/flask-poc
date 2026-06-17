@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
+import logging
 
 app = Flask(__name__)
 
@@ -14,20 +15,20 @@ app.wsgi_app = ProxyFix(
     x_prefix=1
 )
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 @app.route('/')
 def home():
-    # 1. Check the raw header coming from Nginx
-    x_forwarded_for = request.headers.get('X-Forwarded-For')
-    
-    # 2. Check the IP after ProxyFix has processed the headers
+    # Log client IP for monitoring (remove debug prints in production)
     client_ip = request.remote_addr
-    
-    print(f"DEBUG: Raw X-Forwarded-For Header: {x_forwarded_for}")
-    print(f"DEBUG: Final Client IP (parsed): {client_ip}")
+    if client_ip and not client_ip.startswith('192.168.'):
+        logger.info(f"Request from IP: {client_ip}")
     
     return render_template('index.html')
 
 if __name__ == '__main__':
     # Ensure this port matches the port in your docker-compose.yml 
     # and your Nginx 'proxy_pass' directive (usually 8000).
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=False)
