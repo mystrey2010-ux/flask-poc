@@ -74,9 +74,10 @@ docker run --rm -it \
 
 ## Security Features Implemented
 
-1. **IP Address Logging:** Nginx uses a custom log format that captures real IP addresses from the X-Forwarded-For header, which is processed by Flask's ProxyFix middleware.
-2. **SSL/TLS Configuration:** Strong SSL protocols (TLSv1.2, TLSv1.3) and cipher suites are configured for secure communication with proper certificate validation.
-3. **Security Headers:** Implements HTTP security headers like HSTS, XSS protection, frame options, and content type options to enhance application security.
+1. **Rate Limiting:** Nginx is configured with rate limiting to protect against DDoS and vulnerability scanning attacks. Limits requests to 5 per minute per IP with a burst capacity of 10 requests.
+2. **IP Address Logging:** Nginx uses a custom log format that captures real IP addresses from the X-Forwarded-For header, which is processed by Flask's ProxyFix middleware.
+3. **SSL/TLS Configuration:** Strong SSL protocols (TLSv1.2, TLSv1.3) and cipher suites are configured for secure communication with proper certificate validation.
+4. **Security Headers:** Implements HTTP security headers like HSTS, XSS protection, frame options, and content type options to enhance application security.
 
 ## Application Structure
 
@@ -85,4 +86,21 @@ docker run --rm -it \
 *   `nginx/nginx.conf`: Nginx configuration with SSL setup and reverse proxy rules.
 *   `templates/index.html`: Basic HTML template for the root page.
 *   `static/style.css`: Basic CSS styling for the page.
+*   `check_ips.sh`: Security monitoring script to analyze Nginx logs and identify potential malicious IP addresses.
+
+## Security Monitoring
+
+To analyze access logs and identify potential vulnerability scanners:
+
+```bash
+./check_ips.sh
+```
+
+This script will:
+- Extract IP addresses from Nginx proxy logs
+- Count and rank IP addresses by frequency
+- Display the top IP addresses that may be scanning your system
+- Save detailed analysis to `/tmp/ip_analysis.txt`
+
+IPs with high request counts (especially requesting sensitive paths like `/.env`, `/config`, etc.) should be monitored and potentially blocked. The rate limiting configuration will automatically slow down excessive requests from these IPs.
 
