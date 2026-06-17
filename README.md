@@ -74,10 +74,11 @@ docker run --rm -it \
 
 ## Security Features Implemented
 
-1. **Rate Limiting:** Nginx is configured with rate limiting to protect against DDoS and vulnerability scanning attacks. Limits requests to 5 per minute per IP with a burst capacity of 10 requests.
-2. **IP Address Logging:** Nginx uses a custom log format that captures real IP addresses from the X-Forwarded-For header, which is processed by Flask's ProxyFix middleware.
-3. **SSL/TLS Configuration:** Strong SSL protocols (TLSv1.2, TLSv1.3) and cipher suites are configured for secure communication with proper certificate validation.
-4. **Security Headers:** Implements HTTP security headers like HSTS, XSS protection, frame options, and content type options to enhance application security.
+1. **Selective IP Blocking:** Known malicious IP addresses are explicitly blocked from accessing the application, preventing vulnerability scanning and protecting system resources while maintaining open access for legitimate customers.
+2. **Rate Limiting:** Nginx is configured with rate limiting to protect against DDoS and vulnerability scanning attacks. Limits requests to 5 per minute per IP with a burst capacity of 10 requests.
+3. **IP Address Logging:** Nginx uses a custom log format that captures real IP addresses from the X-Forwarded-For header, which is processed by Flask's ProxyFix middleware.
+4. **SSL/TLS Configuration:** Strong SSL protocols (TLSv1.2, TLSv1.3) and cipher suites are configured for secure communication with proper certificate validation.
+5. **Security Headers:** Implements HTTP security headers like HSTS, XSS protection, frame options, and content type options to enhance application security.
 
 ## Application Structure
 
@@ -103,4 +104,14 @@ This script will:
 - Save detailed analysis to `/tmp/ip_analysis.txt`
 
 IPs with high request counts (especially requesting sensitive paths like `/.env`, `/config`, etc.) should be monitored and potentially blocked. The rate limiting configuration will automatically slow down excessive requests from these IPs.
+
+### Currently Blocked IPs
+
+The following malicious IP addresses are currently blocked:
+- `45.148.10.200`
+- `172.174.109.243`
+- `47.251.13.59`
+- `52.200.76.145`
+
+To add additional IPs to the block list, edit `nginx/nginx.conf` and add `deny <IP_ADDRESS>;` inside both server blocks (HTTP and HTTPS). Restart Nginx with `docker compose restart nginx_proxy` for changes to take effect.
 
